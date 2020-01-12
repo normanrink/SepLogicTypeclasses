@@ -1,0 +1,6 @@
+-R . SepLogicTC
+
+Heap.v
+Triples.v
+MyObject.v
+
