@@ -176,12 +176,10 @@ Proof with auto.
     - apply disj_empty_neutral_right.
     - rewrite union_empty_neutral_right...
     - unfold pure...
-  + unfold imply, sep. intuition.
-    destruct H as [h1 [h2 [Hdis [Hun [Hsing Hemp] ] ] ] ].
-    exists h1, h2. intuition.
-    destruct Hemp. subst...
+  + unfold imply, sep.
+    firstorder; subst.
+    exists x, empty; firstorder.
 Qed.
-
 
 Lemma hoare_read_frame_right : forall {S : Set} p (v : S) P,
   {{[[p |-> v]] * P}} (Read S p) {{r, [[p |-> v]] * <[r = v]> * P}}.
@@ -207,18 +205,17 @@ Proof with auto.
   + apply hoare_read_frame_left'.
   + apply hass_imply_taut.
   + intro r.
-    unfold imply, sep. intuition.
-    destruct H as [h1 [h2 [Hdis [Hun [HP H] ] ] ] ].
-    destruct H as [h3 [h4 [Hdis' [Hun' [Hsing Hpure] ] ] ] ].
-    destruct Hpure. subst. clear Hdis'.
-    rewrite union_empty_neutral_right in *.
-    exists (union h1 h3), empty. intuition.
-    - apply disj_empty_neutral_right...
-    - rewrite union_empty_neutral_right...
-    - exists h1, h3. intuition.
-    - unfold pure...
+    unfold imply, sep.
+    firstorder; subst.
+    exists (union x x1), empty; firstorder.
+    - inversion H0.
+    - repeat rewrite union_empty_neutral_right...
+    - exists x, x1; firstorder.
+      * destruct (x1 n) eqn:?...
+        assert(union x1 empty n = None) by firstorder.
+        unfold union in H4; rewrite Heqo in H4...
+      * apply H3. exists x0. unfold union. rewrite H0...
 Qed.
-
 
 Lemma hoare_false_pre {res : Set} : forall (c : cmd res) (Q : res -> hass),
   {{<[False]>}} c {{r, Q r}}.

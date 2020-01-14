@@ -285,72 +285,51 @@ Section assertions_lemmata.
   Qed.
 
   Lemma hass_imply_taut : forall (P : hass), P ==> P.
-  Proof with auto.
-    unfold imply...
-  Qed.
+  Proof. unfold imply; auto. Qed.
 
   Lemma hass_singleton_exclusive :
     forall {S1 S2 : Set} p (v : S1) (w : S2) (P : hass),
       [[p |-> v]] * [[p |-> w]] ==> P.
-  Proof with auto.
-    unfold imply. intuition.
-    unfold sep in *.
-    destruct H as [h1 [h2 [Hdis [Hun [Hpv Hpw] ] ] ] ].
+  Proof.
+    destruct 1 as [h1 [h2 [Hdis [Hun [Hpv Hpw] ] ] ] ]; intuition.
     unfold singleton in *. subst.
     inversion Hdis.
-    assert(exists x, single p v p = Some x).
-      exists (he v); unfold single...
-      rewrite Nat.eqb_refl...
+    assert(exists x, single p v p = Some x)
+      by (exists (he v); unfold single; rewrite Nat.eqb_refl; auto).
     apply H in H1.
-      unfold single in H1. rewrite Nat.eqb_refl in H1. inversion H1.
+    unfold single in H1; rewrite Nat.eqb_refl in H1; inversion H1.
   Qed.
 
   Lemma hass_pure_contraction : forall (P : Prop),
     <[P]> * <[P]> ==> <[P]>.
-  Proof with auto.
-    unfold imply, sep. intuition.
-    destruct H as [h1 [h2 [Hdis [Hun [HP1 HP2] ] ] ] ].
-    destruct HP1; subst...
+  Proof.
+    destruct 1 as [h1 [h2 H] ].
+    firstorder; subst; auto.
   Qed.
 
   Lemma hass_pure_conj_equiv_sep : forall (P Q : Prop),
     <[P /\ Q]> === <[P]> * <[Q]>.
-  Proof with auto.
-    unfold equiv, sep. intuition.
-    + destruct H; subst.
-      exists empty, empty; intuition; try (unfold pure; auto).
-      apply disj_empty_neutral_left.
-    + unfold pure; intuition;
-        destruct H as [h1 [h2 [_ [Hun [HP HQ] ] ] ] ];
-        destruct HP, HQ...
-      subst; rewrite union_empty_neutral_left...
+  Proof.
+    unfold equiv, pure, sep.
+    firstorder; subst; auto.
+    exists empty, empty; intuition; firstorder.
   Qed.
 
   Lemma hass_imply_trans : forall (P Q R : hass),
     P ==> Q -> Q ==> R -> P ==> R.
-  Proof with auto.
-    unfold imply; intuition.
-  Qed.
+  Proof. firstorder. Qed.
 
   Lemma hass_imply_imply_equiv : forall (P Q : hass),
     (P ==> Q /\ Q ==> P) <-> P === Q.
-  Proof with auto.
-    unfold imply, equiv; intuition; apply H...
-  Qed.
+  Proof. firstorder. Qed.
 
   Lemma hass_equiv_imply : forall (P Q : hass),
     (P === Q) -> P ==> Q.
-  Proof with auto.
-    unfold imply, equiv; intuition; apply H...
-  Qed.
+  Proof. firstorder. Qed.
 
   Lemma hass_equiv_trans : forall (P Q R : hass),
     P === Q -> Q === R -> P === R.
-  Proof with auto.
-    unfold equiv; intuition.
-    + apply H0; apply H...
-    + apply H; apply H0...
-  Qed.
+  Proof. firstorder. Qed.
 
   Lemma hass_equiv_symm : forall (P Q : hass),
     (P === Q) <-> (Q === P).
@@ -360,39 +339,19 @@ Section assertions_lemmata.
 
   Lemma hass_imply_framed_right : forall (P Q R : hass),
     P ==> Q -> P * R ==> Q * R.
-  Proof with auto.
-    unfold imply. intros P Q R H h Hsep.
-    unfold sep in *.
-    destruct Hsep as [h1 [h2 [Hdis [Hun [HP HR] ] ] ] ].
-    apply H in HP.
-    exists h1, h2...
-  Qed.
+  Proof. firstorder. Qed.
 
   Lemma hass_equiv_framed_right : forall (P Q R : hass),
     P === Q -> P * R === Q * R.
-  Proof with auto.
-    unfold equiv, sep; intuition;
-      destruct H0 as [h1 [h2 [Hdis [Hun [HP HR] ] ] ] ];
-      exists h1, h2; intuition; apply H...
-  Qed.
+  Proof. firstorder. Qed.
 
   Lemma hass_imply_framed_left : forall (P Q R : hass),
     P ==> Q -> R * P ==> R * Q.
-  Proof with auto.
-    unfold imply. intros P Q R H h Hsep.
-    unfold sep in *.
-    destruct Hsep as [h1 [h2 [Hdis [Hun [HR HP] ] ] ] ].
-    apply H in HP.
-    exists h1, h2...
-  Qed.
+  Proof. firstorder. Qed.
 
   Lemma hass_equiv_framed_left : forall (P Q R : hass),
     P === Q -> R * P === R * Q.
-  Proof with auto.
-    unfold equiv, sep; intuition;
-      destruct H0 as [h1 [h2 [Hdis [Hun [HR HP] ] ] ] ];
-      exists h1, h2; intuition; apply H...
-  Qed.
+  Proof. firstorder. Qed.
 
   Lemma sep_assoc_1 : forall (P Q R : hass),
     (P * Q) * R ==> P * (Q * R).
@@ -453,16 +412,16 @@ Section assertions_lemmata.
   Lemma sep_pure_left : forall (P : hass) (Q : Prop),
     Q -> forall h, P h -> (sep <[Q]> P) h.
   Proof with auto.
-    unfold sep. intuition.
-    exists empty, h. firstorder.
+    unfold sep; intuition.
+    exists empty, h; firstorder.
     inversion H1.
   Qed.
 
   Lemma sep_pure_right : forall (P : hass) (Q : Prop),
     Q -> forall h, P h -> (sep P <[Q]>) h.
   Proof with auto.
-    unfold sep. intuition.
-    exists h, empty. firstorder.
+    unfold sep; intuition.
+    exists h, empty; firstorder.
     + inversion H1.
     + rewrite union_empty_neutral_right...
   Qed.
