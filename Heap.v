@@ -450,6 +450,23 @@ Section assertions_lemmata.
       rewrite union_empty_neutral_right...
   Qed.
 
+  Lemma sep_pure_left : forall (P : hass) (Q : Prop),
+    Q -> forall h, P h -> (sep <[Q]> P) h.
+  Proof with auto.
+    unfold sep. intuition.
+    exists empty, h. firstorder.
+    inversion H1.
+  Qed.
+
+  Lemma sep_pure_right : forall (P : hass) (Q : Prop),
+    Q -> forall h, P h -> (sep P <[Q]>) h.
+  Proof with auto.
+    unfold sep. intuition.
+    exists h, empty. firstorder.
+    + inversion H1.
+    + rewrite union_empty_neutral_right...
+  Qed.
+
   Close Scope heap_scope.
 End assertions_lemmata.
 
