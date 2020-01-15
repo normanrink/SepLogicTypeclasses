@@ -7,7 +7,7 @@ Open Scope heap_scope.
 
 (* Define a simple language that models heap operations: *)
 Inductive cmd : Set -> Type :=
-  | Return {Res : Set} (r : Res) : cmd Res
+  | Return {S : Set} (r : S) : cmd S
   | Bind {Res Res' : Set}
          (c1 : cmd Res')
          (c2 : Res' -> cmd Res) : cmd Res
@@ -217,43 +217,26 @@ Proof with auto.
       * apply H3. exists x0. unfold union. rewrite H0...
 Qed.
 
-Lemma hoare_false_pre {res : Set} : forall (c : cmd res) (Q : res -> hass),
+
+Ltac hoare_false_pre_subgoal tac :=
+   eapply HtConsequence ;
+   (apply HtFrame; apply tac) ||
+   (apply hass_ex_falso) ||
+   (intuition; apply hass_ex_falso_framed_left).
+
+Lemma hoare_false_pre {S : Set} : forall (c : cmd S) (Q : S -> hass),
   {{<[False]>}} c {{r, Q r}}.
 Proof with auto.
-  intro c. elim c; intuition.
-
-  + apply HtConsequence with (P := emp * <[False]>)
-                             (Q0 := fun s => <[s = r]> * <[False]>).
-    - apply HtFrame. apply HtReturn.
-    - apply hass_ex_falso.
-    - simpl. intro s. apply hass_ex_falso_framed_left.
-
+  intros c Q. induction c.
+  + hoare_false_pre_subgoal (@HtReturn S).
   + apply HtBind with (Q := fun _ => <[False]>).
-    - eapply H.
-    - intro s. eapply H0.
-
-  + apply HtConsequence with (P := (exist v:S, [[p |-> v]] * emp) * <[False]>)
-                             (Q0 := fun s => ([[p |-> s]] * emp) * <[False]>).
-    - eapply HtFrame. apply HtRead.
-    - apply hass_ex_falso.
-    - simpl. intro s. apply hass_ex_falso_framed_left.
-
-  + apply HtConsequence with (P := (exist (w:S), [[p |-> w]]) * <[False]>)
-                             (Q0 := fun _ => [[p |-> v]] * <[False]>).
-    - apply HtFrame. apply HtWrite.
-    - apply hass_ex_falso.
-    - simpl. intro s. apply hass_ex_falso_framed_left.
-
-  + apply HtConsequence with (P := emp * <[False]>)
-                             (Q0 := fun s => <[s <> 0]> * [[s |-> v]] * <[False]>).
-    - apply HtFrame. eapply HtAlloc.
-    - apply hass_ex_falso.
-    - simpl. intro s. apply hass_ex_falso_framed_left.
-
-  + eapply HtConsequence.
-    - apply HtFrame. apply HtFree.
-    - apply hass_ex_falso.
-    - simpl. intro s. apply hass_ex_falso_framed_left.
+    - apply IHc.
+    - intro; apply H.
+  + hoare_false_pre_subgoal (@HtRead S).
+  + hoare_false_pre_subgoal (@HtWrite S).
+  + hoare_false_pre_subgoal (@HtAlloc S).
+  + hoare_false_pre_subgoal (@HtFree S).
+  Unshelve. exact Q.
 Qed.
 
 Lemma hoare_false_pre' {res : Set} : forall (c : cmd res) P Q,
