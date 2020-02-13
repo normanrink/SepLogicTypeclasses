@@ -25,7 +25,7 @@ Notation "c1 ;; c2" := (Bind c1 (fun _ => c2))
 Reserved Notation "{{ P }} c {{ r , Q }}" (at level 90, c at next level).
 
 (* Fairly standard definition of Hoare triples, loosely based on Chapter 14 of
-   "Formal Reasoning About Programs"by Adam Chlipala, 2015-2017:
+   "Formal Reasoning About Programs" by Adam Chlipala, 2015-2017:
    (see also: https://github.com/achlipala/frap/blob/master/SeparationLogic.v)
 *)
 Inductive hoare_triple : forall {res : Set},
