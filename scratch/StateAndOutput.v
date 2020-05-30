@@ -182,7 +182,7 @@ Qed.
 Definition assertion := State -> Output -> Prop.
 
 (* Axiomatic semantics for 'cmd',
-   in terms of Hoare-syle triples: *)
+   in terms of Hoare-style triples: *)
 
 Inductive triple : forall {res : Set},
   assertion -> cmd res -> (res -> assertion) -> Prop :=
